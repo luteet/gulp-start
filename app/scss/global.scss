@@ -1,0 +1,89 @@
+@use 'sass:math';
+
+:root {
+	--title-font: 'Arial', sans-serif;
+	--main-font: 'Arial', sans-serif;
+	
+	--accent: #5ec63f;
+	--accent-hover: #71db50;
+	--accent-active: #4eb42f;
+
+	--background: #FFF;
+	--text-color: #000;
+
+	--container-padding: 15px;
+}
+
+html {
+	min-height: 100%; min-width: 320px;
+
+	font-size: 16px;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+
+	min-height: 100%; min-width: 320px;
+
+	font-family: var(--main-font);
+	font-weight: 400;
+	line-height: 150%;
+
+	&.is-mobile-menu-active {
+		overflow: hidden;
+	}
+}
+
+.image-aspect-ratio {
+	width: 100%; height: auto;
+
+	@supports (aspect-ratio: 1) {
+		aspect-ratio: var(--aspect-ratio);
+	}
+}
+
+section {
+	position: relative;
+	
+	z-index: 2;
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+
+	flex: 1 1 auto;
+}
+
+.main {
+	position: relative;
+
+	flex: 1 0 auto;
+
+	overflow: hidden;
+}
+
+$container: 1440;
+
+.container, section, header, footer {
+	padding-left: var(--container-padding);
+	padding-right: var(--container-padding);
+	
+	@media (min-width: #{$container}px) {
+		padding-left: max(var(--container-padding), calc(50% - #{math.div($container, 2)}px));
+		padding-right: max(var(--container-padding), calc(50% - #{math.div($container, 2)}px));
+	}
+}
+
+.visible-on-mob {
+	@media (min-width: 992px) {
+		display: none !important;
+	}
+}
+
+.visible-on-desktop {
+	@media (max-width: 991px) {
+		display: none !important;
+	}
+}

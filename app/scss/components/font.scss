@@ -1,0 +1,45 @@
+@use 'mixin' as mixin;
+
+// font(name, weight, src)
+
+/* @font-face {
+	@include mixin.font('', 400, '');
+} */
+
+.main-title {
+	font-family: var(--title-font);
+	font-weight: 700;
+	line-height: 115%;
+	font-size: 1.875rem;
+
+	@media (min-width: 550px) {
+		font-size: 2rem;
+	}
+	
+	@media (min-width: 768px) {
+		font-size: 2.5rem;
+	}
+	
+	@media (min-width: 992px) {
+		font-size: 3.125rem;
+	}
+}
+
+.title {
+	font-family: var(--title-font);
+	font-weight: 700;
+	font-size: 1.125rem;
+	
+	@media (min-width: 550px) {
+		font-size: 1.5rem;
+	}
+	
+	@media (min-width: 992px) {
+		font-size: 1.875rem;
+	}
+}
+
+.section-title {
+	font-family: var(--title-font);
+	font-weight: 700;
+}
