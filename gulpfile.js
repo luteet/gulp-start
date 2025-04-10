@@ -188,21 +188,6 @@ async function cleanFiles(deletedFile, extension, build_path, reload = false) {
 	reload && bs.reload();
 }
 
-function json() {
-	return src(paths.watch.json)
-		.pipe(dest(paths.build.json))
-}
-
-function video() {
-	return src(paths.watch.video)
-		.pipe(dest(paths.build.video))
-}
-
-function audio() {
-	return src(paths.watch.audio)
-		.pipe(dest(paths.build.audio))
-}
-
 function sprites() {
 	return src(paths.watch.sprites)
 		.pipe(dest(paths.build.img))
@@ -239,32 +224,20 @@ export function watchFiles() {
 		await cleanFiles(filePath, ["js"], paths.build.js);
 	});
 
-	if (add_watch.json) {
-		watch(paths.watch.json, { events: ["add", "change"] }, series(json, reload));
-
-		const watcherJSON = chokidar.watch(paths.watch.json_folder, watcher);
-		watcherJSON.on('unlink', async (filePath) => {
-			await cleanFiles(filePath, ["json"], paths.build.json, true);
-		});
+	if(add_watch.length) {
+		add_watch.map(params => {
+			watch(`app/${params.folder}/*.${params.extname}`, { events: ["add", "change"] }, series(() => {
+				return src(`app/${params.folder}/*.${params.extname}`)
+				.pipe(dest(`dist/${params.folder}`));
+			}, reload));
+	
+			const watcherJSON = chokidar.watch(`app/${params.folder}`, watcher);
+			watcherJSON.on('unlink', async (filePath) => {
+				await cleanFiles(filePath, [params.extname], `dist/${params.folder}`, params.reload);
+			});
+		})
 	}
 
-	if (add_watch.audio) {
-		watch(paths.watch.audio, { events: ["add", "change"] }, series(audio, reload));
-
-		const watcherAudio = chokidar.watch(paths.watch.audio_folder, watcher);
-		watcherAudio.on('unlink', async (filePath) => {
-			await cleanFiles(filePath, ["*"], paths.build.audio, true);
-		});
-	}
-
-	if (add_watch.video) {
-		watch(paths.watch.video, { events: ["add", "change"] }, series(video, reload));
-
-		const watcherVideo = chokidar.watch(paths.watch.video_folder, watcher);
-		watcherVideo.on('unlink', async (filePath) => {
-			await cleanFiles(filePath, ["*"], paths.build.video, true);
-		});
-	}
 }
 
 // Build

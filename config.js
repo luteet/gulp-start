@@ -1,9 +1,11 @@
 export default {
-	add_watch: {
-		json: false,
-		audio: false,
-		video: false
-	},
+	add_watch: [
+		/* {
+			extname: "json",
+			folder: "json",
+			reload: true
+		} */
+	],
 	paths: {
 		build: {
 			gitignore: ".gitignore",
