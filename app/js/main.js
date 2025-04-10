@@ -64,7 +64,7 @@ let windowSize = 0;
 
 function resize() {
 
-	//header && html.style.setProperty("--height-header", header.offsetHeight + "px");
+	header && html.style.setProperty("--height-header", header.offsetHeight + "px");
 
 	html.style.setProperty("--vh", (window.innerHeight * 0.01).toFixed(2) + "px");
 	//windowSize != window.innerWidth && html.style.setProperty("--svh", (window.innerHeight * 0.01).toFixed(2) + "px");
