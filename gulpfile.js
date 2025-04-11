@@ -22,7 +22,7 @@ const { add_watch, paths, js_config, css_config, watcher } = config;
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
 
-// Clean
+// Deleting dist
 export function clean() {
 	return del(paths.clean);
 }
@@ -61,6 +61,65 @@ function libsStyles() {
 		.pipe(rename({ basename: 'libs', extname: ".scss" }))
 		.pipe(dest(paths.src.scss_folder))
 }
+
+// Add import new style files
+function updateStyleFile(addedFile = null, cb = () => { }, is_remove = false) {
+	const MARKER = '// new';
+
+	let content = '';
+	if (fs.existsSync(paths.src.scss)) {
+		content = fs.readFileSync(paths.src.scss, 'utf8');
+	}
+
+	const parts = content.split(MARKER);
+	let newLine = '';
+
+	if (addedFile && !is_remove) {
+		const relativePath = path.relative(path.dirname(paths.src.scss), addedFile)
+			.replace(/\\/g, '/')
+			.replace(/\.scss$/, '');
+
+		// Проверяем, есть ли уже такое подключение в файле
+		const importPattern1 = `@forward "${relativePath}";`;
+		const importPattern2 = `// @forward "${relativePath}";`;
+		const fileAlreadyIncluded = content.includes(importPattern1) || content.includes(importPattern2);
+
+		if (!fileAlreadyIncluded) {
+			newLine = `// @forward "${relativePath}";\n`;
+		}
+	}
+
+	const newContent = parts[0] + MARKER + '\n' + newLine;
+	fs.writeFileSync(paths.src.scss, newContent);
+	cb();
+}
+
+function processStyleFile(filePath, action) {
+	if (!fs.existsSync(paths.src.scss)) return;
+
+	const relativePath = path.relative(path.dirname(paths.src.scss), filePath)
+		.replace(/\\/g, '/')
+		.replace(/\.scss$/, '');
+
+	let content = fs.readFileSync(paths.src.scss, 'utf8');
+
+	const pattern = `(//\\s*)?(@forward)\\s*['"]${relativePath.replace(/\//g, '\\/')}['"];?`;
+	const regex = new RegExp(pattern, 'g');
+
+	const newContent = content.replace(regex, match => {
+		if (action === 'uncomment' && match.startsWith('//')) {
+			return match.replace('//', '').trim();
+		} else if (action === 'comment' && !match.startsWith('//')) {
+			return `// ${match}`;
+		}
+		return match;
+	});
+
+	if (newContent !== content) {
+		fs.writeFileSync(paths.src.scss, newContent);
+	}
+}
+
 
 // JS
 function js() {
@@ -111,15 +170,16 @@ export function zip() {
 		.pipe(dest('dist/'));
 }
 
+// .gitignore generator
 async function gitignore(cb) {
-	if(name) {
+	if (name) {
 		const content = [
 			'/node_modules',
 			'/package-lock.json',
 			`/${name}`,
 			`/${name}.zip`
 		].join('\n');
-	
+
 		fs.writeFile(paths.build.gitignore, content, () => {
 			cb();
 		});
@@ -176,21 +236,22 @@ async function reload(cb) {
 	cb();
 }
 
+// Icons
+function sprites() {
+	return src(paths.watch.sprites)
+		.pipe(dest(paths.build.img))
+}
+
+// Cleaning files
 async function cleanFiles(deletedFile, extension, build_path, reload = false) {
 	const parsed = path.parse(deletedFile);
-	const baseName = parsed.name; // filename without extension
+	const baseName = parsed.name;
 
-	// Forming masks for searching derived files
 	const patterns = [];
 	extension.map(extension => patterns.push(`${build_path}/${baseName}.${extension}`))
 
 	await del(patterns);
 	reload && bs.reload();
-}
-
-function sprites() {
-	return src(paths.watch.sprites)
-		.pipe(dest(paths.build.img))
 }
 
 // Watch
@@ -206,6 +267,7 @@ export function watchFiles() {
 	const watcherImages = chokidar.watch(paths.src.img_folder, watcher),
 		watcherFonts = chokidar.watch(paths.watch.fonts, watcher),
 		watcherHTML = chokidar.watch(paths.watch.html_folder, watcher),
+		watcherSCSS = chokidar.watch(paths.watch.scss_folder, watcher),
 		watcherJS = chokidar.watch(paths.watch.js_folder, watcher);
 
 	watcherImages.on('unlink', async (filePath) => {
@@ -224,20 +286,34 @@ export function watchFiles() {
 		await cleanFiles(filePath, ["js"], paths.build.js);
 	});
 
-	if(add_watch.length) {
+	watcherSCSS
+		.on('unlink', path => {
+			if (!path.includes('-') && path.endsWith('.scss')) {
+				updateStyleFile(path, () => { }, true);
+				processStyleFile(path, 'comment');
+			}
+		})
+		.on('add', path => {
+			if (!path.includes('-') && path.endsWith('.scss')) {
+				processStyleFile(path, 'uncomment');
+				updateStyleFile(path, () => { });
+			}
+		})
+		.on('error', error => console.error(`Watcher error: ${error}`));
+
+	if (add_watch.length) {
 		add_watch.map(params => {
 			watch(`app/${params.folder}/*.${params.extname}`, { events: ["add", "change"] }, series(() => {
 				return src(`app/${params.folder}/*.${params.extname}`)
-				.pipe(dest(`dist/${params.folder}`));
+					.pipe(dest(`dist/${params.folder}`));
 			}, reload));
-	
+
 			const watcherJSON = chokidar.watch(`app/${params.folder}`, watcher);
 			watcherJSON.on('unlink', async (filePath) => {
 				await cleanFiles(filePath, [params.extname], `dist/${params.folder}`, params.reload);
 			});
 		})
 	}
-
 }
 
 // Build

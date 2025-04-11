@@ -1,14 +1,16 @@
 
-@forward 'libs';
-@forward 'reset';
-@forward 'global';
+@forward "libs";
+@forward "reset";
+@forward "global";
 
-@forward 'components/font';
-@forward 'components/form';
+@forward "components/font";
+@forward "components/button";
+@forward "components/form";
 
-@forward 'components/button';
-@forward 'components/header';
+@forward "components/header";
 
-// @forward 'pages/index/hero';
+@forward "pages/index/hero";
 
-@forward 'components/footer';
+@forward "components/footer";
+
+// new

@@ -68,6 +68,7 @@ export default {
 		watch: {
 			html: 'app/**/*.html',
 			scss: 'app/scss/**/*.scss',
+			scss_folder: 'app/scss',
 			js: 'app/js/**/*.js',
 			js_folder: "app/js",
 			html_folder: "app",
@@ -103,6 +104,11 @@ export default {
     },
 	watcher: {
 		ignored: /(^|[\/\\])\../,
-		persistent: true
+		persistent: true,
+		ignoreInitial: true,
+		awaitWriteFinish: {
+			stabilityThreshold: 200,
+			pollInterval: 100
+		}
 	}
 }

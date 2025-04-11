@@ -1,6 +1,4 @@
-@use 'mixin' as mixin;
-
-// font(name, weight, src)
+@use '../mixin' as mixin;
 
 /* @font-face {
 	@include mixin.font('', 400, '');
