@@ -114,11 +114,12 @@
 	&__nav-list {
 		display: flex;
 		flex-wrap: wrap;
-		flex-direction: column;
 		align-items: center;
+		flex-direction: column;
 
 		> li {
 			width: 100%;
+
 			text-align: center;
 			
 			@media (min-width: 992px) {
@@ -144,6 +145,8 @@
 
 	&__burger {
 		position: relative;
+		
+		perspective: 50px;
 
 		display: block;
 	
@@ -155,14 +158,14 @@
 	
 		cursor: pointer;
 		
-		perspective: 50px;
-
 		&::before {
 			content: '';
+
 			position: absolute;
 			left: 50%; top: 50%;
-			width: 150%; height: 150%;
 			transform: translate(-50%,-50%);
+
+			width: 150%; height: 150%;
 		}
 	
 		@media (min-width: 992px) {
