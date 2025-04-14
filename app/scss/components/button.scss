@@ -1,8 +1,4 @@
 .button {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	
 	padding: 7px 15px;
 
 	border-radius: 15px;
@@ -11,7 +7,18 @@
 	color: var(--background);
 	text-align: center;
 
-	transition: background .3s;
-
 	cursor: pointer;
+
+	@media (hover: hover) {
+
+		transition: background .3s;
+
+		&:hover {
+			
+		}
+	
+		&:active {
+			
+		}
+	}
 }
