@@ -22,7 +22,7 @@ export default {
 		},
 		src: {
 			html: 'app/*.html',
-			html_components: 'app/html/**/_*.html',
+			html_components: 'app/html/**/*.html',
 			scss: 'app/scss/style.scss',
 			scss_folder: 'app/scss/',
 			js: 'app/js/*.js',

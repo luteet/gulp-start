@@ -22,10 +22,12 @@ const { add_watch, paths, js_config, css_config, watcher } = config;
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
 
+
 // Deleting dist
 export function clean() {
 	return del(paths.clean);
 }
+
 
 // HTML
 function html() {
@@ -38,9 +40,9 @@ function html() {
 
 function htmlComponents() {
 	return src(paths.src.html_components)
-		.pipe(include())
-		.pipe(bs.stream());
+		.pipe(include());
 }
+
 
 // SCSS
 const plugins = [
@@ -61,6 +63,7 @@ function libsStyles() {
 		.pipe(rename({ basename: 'libs', extname: ".scss" }))
 		.pipe(dest(paths.src.scss_folder))
 }
+
 
 // Add import new style files
 function updateStyleFile(addedFile = null, cb = () => { }, is_remove = false) {
@@ -132,10 +135,11 @@ function js() {
 function libsScripts(cb) {
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
 		.pipe(uglify(js_config))
-		.pipe(concat('libs.min.js'))
+		.pipe(rename({ basename: 'libs', suffix: ".min" }))
 		.pipe(dest(paths.build.js))
 		.pipe(bs.stream()) : cb();
 }
+
 
 // Server
 function server() {
@@ -149,10 +153,10 @@ function server() {
 function serverOpen() {
 	bs.init({
 		server: { baseDir: paths.build.html },
-		notify: false,
-		open: true
+		notify: false
 	});
 }
+
 
 // Building the project into a folder
 const packageData = JSON.parse(fs.readFileSync('package.json'));
@@ -163,12 +167,14 @@ export function folder() {
 		.pipe(dest(`./${name}`));
 }
 
+
 // Building the project into a zip-archive
 export function zip() {
 	return src(paths.build.main)
 		.pipe(createZip(`${name}.zip`))
 		.pipe(dest('dist/'));
 }
+
 
 // .gitignore generator
 async function gitignore(cb) {
@@ -186,6 +192,7 @@ async function gitignore(cb) {
 	} else cb();
 }
 
+
 // Font conversion (TTF -> WOFF2)
 export async function fonts() {
 	const ttf2woff2 = (await import('gulp-ttf2woff2')).default;
@@ -198,6 +205,7 @@ export async function fonts() {
 		.pipe(ttf2woff2())
 		.pipe(dest(paths.build.fonts))
 }
+
 
 // Image Optimization
 async function otherImages() {
@@ -230,17 +238,20 @@ async function webpImages() {
 
 const images = series(avifImages, webpImages, otherImages);
 
+
 // Just reload
 async function reload(cb) {
 	bs.reload();
 	cb();
 }
 
-// Icons
+
+// Icons (sprites)
 function sprites() {
 	return src(paths.watch.sprites)
 		.pipe(dest(paths.build.img))
 }
+
 
 // Cleaning files
 async function cleanFiles(deletedFile, extension, build_path, reload = false) {
@@ -254,10 +265,11 @@ async function cleanFiles(deletedFile, extension, build_path, reload = false) {
 	reload && bs.reload();
 }
 
-// Watch
+
+// Watch files
 export function watchFiles() {
 	watch(paths.watch.html, html);
-	watch(paths.src.html_components, htmlComponents);
+	watch(paths.src.html_components, series(htmlComponents, html));
 	watch(paths.watch.scss, scss);
 	watch(paths.watch.js, js);
 	watch(paths.watch.fonts, { events: "add" }, series(fonts, reload));
@@ -289,7 +301,6 @@ export function watchFiles() {
 	watcherSCSS
 		.on('unlink', path => {
 			if (!path.includes('-') && path.endsWith('.scss')) {
-				updateStyleFile(path, () => { }, true);
 				processStyleFile(path, 'comment');
 			}
 		})
@@ -316,12 +327,16 @@ export function watchFiles() {
 	}
 }
 
-// Build
-const build = parallel(html, htmlComponents, scss, libsStyles, js, libsScripts);
 
+// Error
 async function nullName(cb) {
 	return cb(new Error('The project name field is empty (package.json)'));
 }
+
+
+// Build
+const build = parallel(html, htmlComponents, scss, libsStyles, js, libsScripts);
+
 
 // Tasks
 export { images };
