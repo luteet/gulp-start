@@ -1,8 +1,9 @@
 import { src, dest, watch, parallel, series } from "gulp";
-import rename from "gulp-rename";
 import * as dartSass from 'sass'
 import gulpSass from 'gulp-sass';
 import postcss from "gulp-postcss";
+import postcssSortMediaQueries from "postcss-sort-media-queries";
+import autoprefixer from "autoprefixer";
 import uglify from "gulp-uglify";
 import del from "del";
 import browserSync from 'browser-sync';
@@ -17,7 +18,7 @@ import config from "./config.js";
 import path from 'path';
 import chokidar from "chokidar";
 
-const { add_watch, paths, js_config, css_config, watcher } = config;
+const { add_watch, paths, js_config, css_config, autoprefixer_config, watcher } = config;
 
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
@@ -46,21 +47,27 @@ function htmlComponents() {
 
 // SCSS
 const plugins = [
+	postcssSortMediaQueries(),
+	autoprefixer(autoprefixer_config),
 	cssnano(css_config)
 ];
 
-function scss() {
+async function scss() {
+	const concat = (await import('gulp-concat')).default;
+
 	return src(paths.src.scss)
 		.pipe(sass().on('error', sass.logError))
 		.pipe(postcss(plugins))
-		.pipe(rename({ basename: 'style', suffix: '.min' }))
+		.pipe(concat("style.min.css"))
 		.pipe(dest(paths.build.css))
 		.pipe(bs.stream());
 }
 
-function libsStyles() {
+async function libsStyles() {
+	const concat = (await import('gulp-concat')).default;
+
 	return src(paths.src.libs.scss)
-		.pipe(rename({ basename: 'libs', extname: ".scss" }))
+		.pipe(concat("libs.scss"))
 		.pipe(dest(paths.src.scss_folder))
 }
 
@@ -132,10 +139,12 @@ function js() {
 		.pipe(bs.stream());
 }
 
-function libsScripts(cb) {
+async function libsScripts(cb) {
+	const concat = (await import('gulp-concat')).default;
+
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
 		.pipe(uglify(js_config))
-		.pipe(rename({ basename: 'libs', suffix: ".min" }))
+		.pipe(concat("libs.min.js"))
 		.pipe(dest(paths.build.js))
 		.pipe(bs.stream()) : cb();
 }

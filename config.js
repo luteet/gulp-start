@@ -102,6 +102,16 @@ export default {
             minifyFontValues: true,
         }]
     },
+	autoprefixer_config: {
+		overrideBrowserslist: [
+			'> 1%',
+			'last 2 versions',
+			'Safari >= 13',
+			'not dead'
+		],
+		cascade: false,
+		grid: false
+	},
 	watcher: {
 		ignored: /(^|[\/\\])\../,
 		persistent: true,
