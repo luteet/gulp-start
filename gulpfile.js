@@ -17,8 +17,14 @@ import fs from "fs";
 import config from "./config.js";
 import path from 'path';
 import chokidar from "chokidar";
+import * as cheerio from 'cheerio';
+import buffer from 'vinyl-buffer';
+import through from 'through2';  
+import { cleanOrphans } from "./utilities/clean-orphans.js";
+import cleanFiles from "./utilities/clean-files.js";
+import { globby } from "globby";
 
-const { add_watch, paths, js_config, css_config, autoprefixer_config, watcher } = config;
+const { add_watch, paths, js_config, css_config, autoprefixer_config, sprites_config, watcher } = config;
 
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
@@ -31,17 +37,25 @@ export function clean() {
 
 
 // HTML
-function html() {
+async function html() {
+	const plumber = (await import('gulp-plumber')).default,
+	notify = (await import('gulp-notify')).default;
+
 	return src(paths.src.html)
-		.pipe(include())
-		.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
-		.pipe(dest(paths.build.html))
-		.pipe(bs.stream());
+	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
+	.pipe(include())
+	.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
+	.pipe(dest(paths.build.html))
+	.pipe(bs.stream());
 }
 
-function htmlComponents() {
+async function htmlComponents() {
+	const plumber = (await import('gulp-plumber')).default,
+	notify = (await import('gulp-notify')).default;
+
 	return src(paths.src.html_components)
-		.pipe(include());
+	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
+	.pipe(include());
 }
 
 
@@ -56,19 +70,19 @@ async function scss() {
 	const concat = (await import('gulp-concat')).default;
 
 	return src(paths.src.scss)
-		.pipe(sass().on('error', sass.logError))
-		.pipe(postcss(plugins))
-		.pipe(concat("style.min.css"))
-		.pipe(dest(paths.build.css))
-		.pipe(bs.stream());
+	.pipe(sass().on('error', sass.logError))
+	.pipe(postcss(plugins))
+	.pipe(concat("style.min.css"))
+	.pipe(dest(paths.build.css))
+	.pipe(bs.stream());
 }
 
 async function libsStyles() {
 	const concat = (await import('gulp-concat')).default;
 
 	return src(paths.src.libs.scss)
-		.pipe(concat("libs.scss"))
-		.pipe(dest(paths.src.scss_folder))
+	.pipe(concat("libs.scss"))
+	.pipe(dest(paths.src.scss_folder))
 }
 
 
@@ -89,7 +103,6 @@ function updateStyleFile(addedFile = null, cb = () => { }, is_remove = false) {
 			.replace(/\\/g, '/')
 			.replace(/\.scss$/, '');
 
-		// Проверяем, есть ли уже такое подключение в файле
 		const importPattern1 = `@forward "${relativePath}";`;
 		const importPattern2 = `// @forward "${relativePath}";`;
 		const fileAlreadyIncluded = content.includes(importPattern1) || content.includes(importPattern2);
@@ -134,19 +147,28 @@ function processStyleFile(filePath, action) {
 // JS
 function js() {
 	return src(paths.src.js)
-		.pipe(uglify(js_config))
-		.pipe(dest(paths.build.js))
-		.pipe(bs.stream());
+	.pipe(uglify(js_config))
+	.pipe(dest(paths.build.js))
+	.pipe(bs.stream());
 }
 
 async function libsScripts(cb) {
 	const concat = (await import('gulp-concat')).default;
 
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
-		.pipe(uglify(js_config))
-		.pipe(concat("libs.min.js"))
-		.pipe(dest(paths.build.js))
-		.pipe(bs.stream()) : cb();
+	.pipe(uglify(js_config))
+	.pipe(concat("libs.min.js"))
+	.pipe(dest(paths.build.js))
+	.pipe(bs.stream()) : cb();
+}
+
+
+// Add files
+async function addFiles() {
+	add_watch.map(params => {
+		return src(`app/${params.folder}/*.${params.extname}`, { encoding: false })
+		.pipe(dest(`dist/${params.folder}`))
+	})
 }
 
 
@@ -173,15 +195,15 @@ const name = packageData.name;
 
 export function folder() {
 	return src([...paths.build.folder, `!./${name}.zip`])
-		.pipe(dest(`./${name}`));
+	.pipe(dest(`./${name}`));
 }
 
 
 // Building the project into a zip-archive
 export function zip() {
 	return src(paths.build.main)
-		.pipe(createZip(`${name}.zip`))
-		.pipe(dest('dist/'));
+	.pipe(createZip(`${name}.zip`))
+	.pipe(dest('dist/'));
 }
 
 
@@ -207,12 +229,12 @@ export async function fonts() {
 	const ttf2woff2 = (await import('gulp-ttf2woff2')).default;
 
 	return src(paths.src.fonts, { encoding: false, removeBOM: false })
-		.pipe(newer({
-			dest: 'dist/fonts',
-			ext: '.woff2'
-		}))
-		.pipe(ttf2woff2())
-		.pipe(dest(paths.build.fonts))
+	.pipe(newer({
+		dest: paths.build.fonts,
+		ext: '.woff2'
+	}))
+	.pipe(ttf2woff2())
+	.pipe(dest(paths.build.fonts))
 }
 
 
@@ -221,28 +243,28 @@ async function otherImages() {
 	const imagemin = (await import('gulp-imagemin')).default;
 
 	return src(paths.src.img, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(imagemin())
+	.pipe(newer(paths.build.img))
+	.pipe(imagemin())
 
-		.pipe(dest('dist/img'))
+	.pipe(dest(paths.build.img))
 }
 
 async function avifImages() {
 	const avif = (await import('gulp-avif')).default;
 
 	return src(paths.src.img_avif, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(avif({ quality: 65 }))
+	.pipe(newer(paths.build.img))
+	.pipe(avif({ quality: 65 }))
 
-		.pipe(dest(paths.build.img))
+	.pipe(dest(paths.build.img))
 }
 
 async function webpImages() {
 	return src(paths.src.img, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(webp())
+	.pipe(newer(paths.build.img))
+	.pipe(webp())
 
-		.pipe(dest(paths.build.img))
+	.pipe(dest(paths.build.img))
 }
 
 const images = series(avifImages, webpImages, otherImages);
@@ -256,22 +278,106 @@ async function reload(cb) {
 
 
 // Icons (sprites)
-function sprites() {
-	return src(paths.watch.sprites)
-		.pipe(dest(paths.build.img))
+
+export async function sprites() {
+	const sprites = (await import('gulp-svg-sprite')).default;
+	const glob = paths.src.sprites;
+	const outputFile = path.join(paths.build.img, 'sprites.svg');
+
+	try {
+		// Получаем список SVG-файлов
+		const files = await globby(glob);
+
+		if (files.length === 0) {
+			// Нет SVG — удаляем sprites.svg, если он есть
+			await del(outputFile);
+			console.log('No SVG files found. Deleted sprites.svg if it existed.');
+			return;
+		}
+	} catch (err) {
+		console.error('Error checking SVG files:', err);
+		return;
+	}
+
+	return src(paths.src.sprites)
+	.pipe(buffer())
+	.pipe(through.obj(function(file, _, callback) {
+		
+		if (!file.contents) {
+			console.error('Error: file does not contain data!');
+			return callback();
+		}
+
+		const $ = cheerio.load(file.contents.toString(), { xmlMode: true });
+
+		$('path').each((_, elem) => {
+			const el = $(elem);
+			if (el.attr('stroke')) {
+				el.attr('stroke', 'currentColor');
+				el.attr('fill', 'none');
+			}
+			if (el.attr('fill')) {
+				el.attr('fill', 'currentColor');
+			}
+		});
+
+		file.contents = Buffer.from($.xml());
+		this.push(file);
+
+		callback();
+	}))
+	.pipe(sprites(sprites_config))
+	.pipe(dest(paths.build.img));
 }
 
 
-// Cleaning files
-async function cleanFiles(deletedFile, extension, build_path, reload = false) {
-	const parsed = path.parse(deletedFile);
-	const baseName = parsed.name;
+function cleanOrphansSeries(cb) {
+	cleanOrphans({
+		ext: ['html'],
+		appDir: 'app',
+		distDir: 'dist',
+		exclude: []
+	});
 
-	const patterns = [];
-	extension.map(extension => patterns.push(`${build_path}/${baseName}.${extension}`))
+	cleanOrphans({
+		ext: ['js'],
+		appDir: 'app/js',
+		distDir: 'dist/js',
+		exclude: ['libs.min.js']
+	});
 
-	await del(patterns);
-	reload && bs.reload();
+	cleanOrphans({
+		ext: ['png', 'jpg'],
+		appDir: 'app/img',
+		distDir: 'dist/img',
+		includeDerivedExt: ['webp', 'avif'],
+	});
+
+	cleanOrphans({
+		ext: ['svg'],
+		appDir: 'app/img',
+		distDir: 'dist/img',
+		exclude: ["sprites.svg"]
+	});
+
+	cleanOrphans({
+		ext: ['ttf'],
+		appDir: 'app/fonts',
+		distDir: 'dist/fonts',
+		includeDerivedExt: ['woff2']
+	});
+
+	if(add_watch.length) {
+		add_watch.map(params => {
+			cleanOrphans({
+				ext: [params.extname],
+				appDir: `app/${params.folder}`,
+				distDir: `dist/${params.folder}`
+			});
+		})
+	}
+	
+	cb();
 }
 
 
@@ -292,36 +398,39 @@ export function watchFiles() {
 		watcherJS = chokidar.watch(paths.watch.js_folder, watcher);
 
 	watcherImages.on('unlink', async (filePath) => {
-		await cleanFiles(filePath, ["avif", "webp", "*"], paths.build.img, true);
+		await cleanFiles(filePath, ["avif", "webp", "*"], bs.reload);
 	});
 
 	watcherFonts.on('unlink', async (filePath) => {
-		await cleanFiles(filePath, ["woff2"], paths.build.fonts, true);
+		await cleanFiles(filePath, ["woff2"], bs.reload);
 	});
 
 	watcherHTML.on('unlink', async (filePath) => {
-		await cleanFiles(filePath, ["html"], paths.build.html);
+		await cleanFiles(filePath, ["html"]);
 	});
 
 	watcherJS.on('unlink', async (filePath) => {
-		await cleanFiles(filePath, ["js"], paths.build.js);
+		await cleanFiles(filePath, ["js"]);
 	});
 
 	watcherSCSS
-		.on('unlink', path => {
-			if (!path.includes('-') && path.endsWith('.scss')) {
-				processStyleFile(path, 'comment');
+		.on('unlink', pathString => {
+			const parsed = path.parse(pathString);
+			if (parsed.name[0] !== "-" && pathString.endsWith('.scss')) {
+				processStyleFile(pathString, 'comment');
 			}
 		})
-		.on('add', path => {
-			if (!path.includes('-') && path.endsWith('.scss')) {
-				processStyleFile(path, 'uncomment');
-				updateStyleFile(path, () => { });
+		.on('add', pathString => {
+			const parsed = path.parse(pathString);
+			if (parsed.name[0] !== "-" && pathString.endsWith('.scss')) {
+				processStyleFile(pathString, 'uncomment');
+				updateStyleFile(pathString, () => { });
 			}
 		})
 		.on('error', error => console.error(`Watcher error: ${error}`));
 
 	if (add_watch.length) {
+		addFiles();
 		add_watch.map(params => {
 			watch(`app/${params.folder}/*.${params.extname}`, { events: ["add", "change"] }, series(() => {
 				return src(`app/${params.folder}/*.${params.extname}`)
@@ -330,7 +439,7 @@ export function watchFiles() {
 
 			const watcherJSON = chokidar.watch(`app/${params.folder}`, watcher);
 			watcherJSON.on('unlink', async (filePath) => {
-				await cleanFiles(filePath, [params.extname], `dist/${params.folder}`, params.reload);
+				await cleanFiles(filePath, [params.extname], params.reload ? bs.reload : null);
 			});
 		})
 	}
@@ -344,11 +453,11 @@ async function nullName(cb) {
 
 
 // Build
-const build = parallel(html, htmlComponents, scss, libsStyles, js, libsScripts);
+const build = parallel(cleanOrphansSeries, html, htmlComponents, scss, libsStyles, js, libsScripts);
 
 
 // Tasks
 export { images };
 export const open = name ? series(build, parallel(watchFiles, serverOpen)) : nullName;
-export const start = name ? series(clean, build, gitignore, sprites, images, fonts, parallel(watchFiles, serverOpen)) : nullName;
+export const build_open = name ? series(clean, build, gitignore, sprites, images, fonts, parallel(watchFiles, serverOpen)) : nullName;
 export default name ? series(build, parallel(watchFiles, server)) : nullName;

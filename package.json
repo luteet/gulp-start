@@ -1,6 +1,6 @@
 {
   "name": "",
-  "version": "1.0.0",
+  "version": "0.3.0",
   "description": "",
   "type": "module",
   "gulpfile": "gulpfile.js",
@@ -12,9 +12,13 @@
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "browser-sync": "^3.0.2",
+    "cheerio": "^1.0.0",
     "chokidar": "^4.0.3",
     "cssnano": "^7.0.6",
     "del": "^6.0.0",
+    "fast-glob": "^3.3.3",
+    "fs-extra": "^11.3.0",
+    "globby": "^14.1.0",
     "gulp": "^5.0.0",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-avif": "^1.1.1",
@@ -22,18 +26,23 @@
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-file-include": "^2.3.0",
-    "postcss-sort-media-queries": "^5.2.0",
     "gulp-imagemin": "^9.1.0",
     "gulp-include": "^2.4.1",
     "gulp-newer": "^1.4.0",
+    "gulp-notify": "^5.0.0",
+    "gulp-plumber": "^1.2.1",
     "gulp-postcss": "^10.0.0",
     "gulp-prettier": "^6.0.0",
     "gulp-sass": "^6.0.1",
+    "gulp-svg-sprite": "^2.0.3",
     "gulp-ttf2woff2": "^5.0.0",
     "gulp-uglify": "^3.0.2",
     "gulp-webp": "^5.0.0",
     "gulp-zip": "^4.2.0",
-    "sass": "^1.86.3"
+    "postcss-sort-media-queries": "^5.2.0",
+    "sass": "^1.86.3",
+    "through2": "^4.0.2",
+    "vinyl-buffer": "^1.0.1"
   },
   "dependencies": {
     "normalize.css": "^8.0.1"

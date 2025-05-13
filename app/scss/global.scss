@@ -11,13 +11,20 @@
 	--background: #FFF;
 	--text-color: #000;
 
-	--container-padding: 15px;
+	--container-gap: 15px;
+	--container: 1440px;
 }
 
 html {
+	--container-padding: var(--container-gap);
+
 	min-height: 100%; min-width: 320px;
 
 	font-size: 16px;
+
+	@media (min-width: 1440px) {
+		--container-padding: max(var(--container-padding), calc(50% - (var(--container) / 2)));
+	}
 }
 
 body {
@@ -64,16 +71,8 @@ section {
 	overflow: hidden;
 }
 
-$container: 1440;
-
 .container, section, header, footer {
-	padding-left: var(--container-padding);
-	padding-right: var(--container-padding);
-	
-	@media (min-width: #{$container}px) {
-		padding-left: max(var(--container-padding), calc(50% - #{math.div($container, 2)}px));
-		padding-right: max(var(--container-padding), calc(50% - #{math.div($container, 2)}px));
-	}
+	padding-left: var(--container-padding); padding-right: var(--container-padding);
 }
 
 .visible-on-mobile {
