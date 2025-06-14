@@ -14,14 +14,14 @@ import webp from "gulp-webp";
 import include from "gulp-file-include";
 import beautify from "gulp-beautify";
 import fs from "fs";
-import config from "./config.js";
+import config from "./gulp/config.js";
 import path from 'path';
 import chokidar from "chokidar";
 import * as cheerio from 'cheerio';
 import buffer from 'vinyl-buffer';
 import through from 'through2';  
-import { cleanOrphans } from "./utilities/clean-orphans.js";
-import cleanFiles from "./utilities/clean-files.js";
+import { cleanOrphans } from "./gulp/utilities/clean-orphans.js";
+import cleanFiles from "./gulp/utilities/clean-files.js";
 import { globby } from "globby";
 
 const { add_watch, paths, js_config, css_config, autoprefixer_config, sprites_config, watcher } = config;
