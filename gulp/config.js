@@ -1,4 +1,4 @@
-import { libs } from "./gulp/libs.js";
+import { libs } from "./libs.js";
 
 export default {
 	add_watch: [
