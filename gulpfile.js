@@ -315,8 +315,7 @@ export async function sprites() {
 			if (el.attr('stroke')) {
 				el.attr('stroke', 'currentColor');
 				el.attr('fill', 'none');
-			}
-			if (el.attr('fill')) {
+			} else if (el.attr('fill')) {
 				el.attr('fill', 'currentColor');
 			}
 		});
