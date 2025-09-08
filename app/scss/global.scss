@@ -11,20 +11,19 @@
 	--background: #FFF;
 	--text-color: #000;
 
-	--container-gap: 15px;
+	--container-gap: 16px;
 	--container: 1440px;
+	--container-padding: var(--container-gap);
+
+	@media (min-width: 1440px) {
+		--container-padding: max(var(--container-gap), calc(50% - (var(--container) / 2)));
+	}
 }
 
 html {
-	--container-padding: var(--container-gap);
-
 	min-height: 100%; min-width: 320px;
 
 	font-size: 16px;
-
-	@media (min-width: 1440px) {
-		--container-padding: max(var(--container-padding), calc(50% - (var(--container) / 2)));
-	}
 }
 
 body {

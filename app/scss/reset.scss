@@ -53,6 +53,8 @@ html, body {
 a, button { touch-action: manipulation; }
 
 button { 
+	background: transparent;
+	
 	color: #000; 
 
 	cursor: pointer;
