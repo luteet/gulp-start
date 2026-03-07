@@ -3,6 +3,8 @@ export const libs = {
 		//'node_modules/@splidejs/splide/dist/js/splide.min.js', // Slider | npm i @splidejs/splide --save | https://splidejs.com/guides/getting-started/
 		//'node_modules/@splidejs/splide-extension-auto-scroll/dist/js/splide-extension-auto-scroll.min.js', // autoscroll for slider | $ npm install @splidejs/splide-extension-auto-scroll --save | https://splidejs.com/guides/getting-started/
 		//'node_modules/@splidejs/splide-extension-grid/dist/js/splide-extension-grid.min.js', // grid for slider | npm install @splidejs/splide-extension-grid --save | https://splidejs.com/guides/getting-started/
+		//'node_modules/swiper/swiper-bundle.min.js', // Slider (Swiper) | npm i swiper | https://swiperjs.com/get-started
+		//'node_modules/keen-slider/keen-slider.js', // Slider (Keen slider) | npm i keen-slider | https://keen-slider.io/
 		//'node_modules/vanilla-lazyload/dist/lazyload.min.js', // Lazyload img | npm i vanilla-lazyload --save | https://www.npmjs.com/package/vanilla-lazyload
 		//'node_modules/smoothscroll-polyfill/dist/smoothscroll.min.js', // window.scroll() | npm i smoothscroll-polyfill --save
 		//'node_modules/clipboard/dist/clipboard.min.js', // clipboard | npm i clipboard --save | https://www.npmjs.com/package/clipboard
@@ -19,13 +21,12 @@ export const libs = {
 		//'node_modules/fslightbox/index.js', // Gallery | npm i fslightbox --save | https://www.npmjs.com/package/fslightbox
 		//'node_modules/chart.js/dist/chart.min.js', // Chart | npm i chart.js --save | https://www.npmjs.com/package/chart.js
 		//'node_modules/vanillajs-datepicker/dist/js/datepicker.min.js', // datepicker | npm install --save vanillajs-datepicker | https://mymth.github.io/vanillajs-datepicker/#/
-		//'node_modules/swiper/swiper-bundle.min.js', // Slider
 	],
 	scss: [
-		'node_modules/normalize.css/normalize.css',
-		//'node_modules/@splidejs/splide/dist/css/splide.min.css', // Slider
-		//'node_modules/@splidejs/splide/dist/css/splide-core.min.css', // Slider
-		//'node_modules/swiper/swiper-bundle.min.css', // Slider
+		'node_modules/modern-normalize/modern-normalize.css',
+		//'node_modules/keen-slider/keen-slider.min.css', // Slider (Keen slider)
+		//'node_modules/@splidejs/splide/dist/css/splide.min.css', // Slider (Splide)
+		//'node_modules/swiper/swiper-bundle.min.css', // Slider (Swiper)
 		//'node_modules/slim-select/dist/slimselect.css', // Select
 		//'node_modules/aos/dist/aos.css', // Animation
 		//'node_modules/nouislider/dist/nouislider.css', // custom input[range]
