@@ -320,6 +320,12 @@ export async function sprites() {
 			}
 		});
 
+		$('line').each((_, elem) => {
+			const el = $(elem);
+			el.attr('stroke', 'currentColor');
+			el.attr('fill', 'none');
+		});
+
 		file.contents = Buffer.from($.xml());
 		this.push(file);
 
