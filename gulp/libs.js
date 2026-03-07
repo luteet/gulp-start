@@ -26,7 +26,7 @@ export const libs = {
 		'node_modules/modern-normalize/modern-normalize.css',
 		//'node_modules/keen-slider/keen-slider.min.css', // Slider (Keen slider)
 		//'node_modules/@splidejs/splide/dist/css/splide.min.css', // Slider (Splide)
-		//'node_modules/swiper/swiper-bundle.min.css', // Slider (Swiper)
+		//'node_modules/swiper/swiper.min.css', // Slider (Swiper)
 		//'node_modules/slim-select/dist/slimselect.css', // Select
 		//'node_modules/aos/dist/aos.css', // Animation
 		//'node_modules/nouislider/dist/nouislider.css', // custom input[range]

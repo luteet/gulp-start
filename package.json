@@ -1,6 +1,6 @@
 {
   "name": "",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "",
   "type": "module",
   "gulpfile": "gulpfile.js",
@@ -19,7 +19,7 @@
     "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.0",
     "globby": "^14.1.0",
-    "gulp": "^5.0.0",
+    "gulp": "^5.0.1",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-avif": "^1.1.1",
     "gulp-beautify": "^3.0.0",
