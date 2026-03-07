@@ -70,7 +70,7 @@ section {
 	overflow: hidden;
 }
 
-.container, section, header, footer {
+.container, section, .header, .footer {
 	padding-left: var(--container-padding); padding-right: var(--container-padding);
 }
 
