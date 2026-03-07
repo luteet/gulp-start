@@ -1,32 +1,36 @@
 
 const 
-	body = document.querySelector('body'),
-	html = document.querySelector('html'),
-	menu = document.querySelectorAll('.header__burger, .header__nav, body'),
-	nav = document.querySelectorAll('.header__nav'),
-	header = document.querySelector('.header');
+	body = document.body,
+	html = document.documentElement,
+	menu = document.querySelectorAll(".header__burger, .header__nav, body"),
+	nav = document.querySelectorAll(".header__nav"),
+	header = document.querySelector(".header");
 
 
 // Click events
 
 let mobileTimeline;
 
-body.addEventListener('click', function (event) {
+body.addEventListener("click", function (event) {
 
-	function $(element) {
-		return event.target.closest(element);
-	}
+	const $ = (element) => event.target.closest(element);
 
 
 	// Navigation menu in the header
 	
-	if ($('.header__burger')) {
+	if ($(".header__burger")) {
 	
-		nav.forEach(nav => nav.classList.add('is-active-transition'))
+		nav.forEach(nav => {
+			nav.classList.add("is-active-transition")
+		})
 
-		setTimeout(() => menu.forEach(element => element.classList.toggle('is-mobile-menu-active')), 0)
+		setTimeout(() => {
+			menu.forEach(element => element.classList.toggle("is-mobile-nav-active"))
+		}, 0)
 
-		mobileTimeline = setTimeout(() => nav.forEach(nav => nav.classList.remove('is-active-transition')), 350)
+		mobileTimeline = setTimeout(() => {
+			nav.forEach(nav => nav.classList.remove("is-active-transition"))
+		}, 350)
 	
 	}
 
@@ -35,16 +39,16 @@ body.addEventListener('click', function (event) {
 
 // Aspect ratio for images
 
-const imageAspectRatio = document.querySelectorAll('.image-aspect-ratio, figure img');
+const imageAspectRatio = document.querySelectorAll(".image-aspect-ratio, figure img");
 imageAspectRatio.forEach(imageAspectRatio => {
-	const [ width, height ] = [imageAspectRatio.getAttribute('width'), imageAspectRatio.getAttribute('height')];
-	if(width && height) imageAspectRatio.style.setProperty('--aspect-ratio', `${width}/${height}`);
+	const [ width, height ] = [imageAspectRatio.getAttribute("width"), imageAspectRatio.getAttribute("height")];
+	if(width && height) imageAspectRatio.style.setProperty("--aspect-ratio", `${width} / ${height}`);
 })
 
 
 // Resize
 
-let windowSize = 0;
+//let windowSize = 0;
 
 function resize() {
 
@@ -56,8 +60,7 @@ function resize() {
 }
 
 resize();
-
-window.addEventListener('resize', resize)
+window.addEventListener("resize", resize)
 
 /* 
 // Animation on scroll

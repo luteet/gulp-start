@@ -1,19 +1,13 @@
 .header {
-	/* position: static;
+	/* position: sticky;
 	left: 0; top: 0; */
 	
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
 	
 	width: 100%;
-	
-	perspective: 400px;
-
-	//transform: translate(0, var(--pos));
-	
-	//transition: transform .2s ease;
 
 	z-index: 3;
 	
@@ -21,6 +15,7 @@
 
 	&__logo {
 		position: relative;
+		
 		z-index: 4;
 	}
 
@@ -29,7 +24,7 @@
 	&__logo-link {
 		display: block;
 
-		max-width: 150px;
+		max-width: 10rem;
 	}
 
 	// .header__logo-img
@@ -46,12 +41,10 @@
 		position: absolute;
 		left: 0; top: 0;
 
-		transform: translateZ(0.0001px);
-
 		width: max(320px,100%);
 		height: calc(var(--vh, 1vh) * 100); height: 100dvh;
 
-		background: var(--background);
+		background-color: var(--background);
 
 		overflow-y: auto; overflow-x: hidden;
 
@@ -61,7 +54,7 @@
 			transition: opacity .3s, visibility .3s;
 		}
 
-		&.is-mobile-menu-active {
+		&.is-mobile-nav-active {
 			opacity: 1; visibility: visible;
 		}
 		
@@ -72,7 +65,7 @@
 
 			padding: 0;
 
-			background: transparent;
+			background-color: transparent;
 			
 			overflow: visible;
 
@@ -85,7 +78,7 @@
 	&__nav-body {
 		position: relative;
 
-		padding: var(--height-header, 0) 0;
+		padding-block: var(--height-header, 0);
 
 		&::before {
 			content: '';
@@ -95,13 +88,13 @@
 
 			width: 100%; height: var(--height-header, 0);
 
-			background: var(--background);
+			background-color: var(--background);
 
 			z-index: 2;
 		}
 
 		@media (min-width: 992px) {
-			padding: 0;
+			padding-block: 0;
 
 			&::before {
 				display: none;
@@ -145,14 +138,12 @@
 
 	&__burger {
 		position: relative;
-		
-		perspective: 50px;
 
 		display: block;
 	
-		width: 30px; height: 30px;
+		width: 1.875rem; height: 1.875rem;
 
-		background: transparent;
+		background-color: transparent;
 	
 		z-index: 4;
 	
@@ -163,7 +154,7 @@
 
 			position: absolute;
 			left: 50%; top: 50%;
-			transform: translate(-50%,-50%);
+			transform: translate(-50%, -50%);
 
 			width: 150%; height: 150%;
 		}
@@ -176,7 +167,7 @@
 			position: absolute;
 			left: 0;
 
-			transform: translate3d(0, -50%, 0.01px);
+			transform: translate(0, -50%);
 	
 			width: 100%;
 			
@@ -204,7 +195,7 @@
 		&.is-mobile-menu-active span {
 			&:nth-child(1) {
 				top: 50%;
-				transform: translate3d(0, -50%, 0.01px) rotate(45deg);
+				transform: translate(0, -50%) rotate(45deg);
 			}
 
 			&:nth-child(2) {
@@ -213,7 +204,7 @@
 
 			&:nth-child(3) {
 				top: 50%;
-				transform: translate3d(0, -50%, 0.01px) rotate(-45deg);
+				transform: translate(0, -50%) rotate(-45deg);
 			}
 	
 		}
