@@ -458,11 +458,10 @@ async function nullName(cb) {
 
 
 // Build
-const build = parallel(cleanOrphansSeries, html, htmlComponents, scss, libsStyles, js, libsScripts);
+export const build = parallel(cleanOrphansSeries, html, htmlComponents, scss, libsStyles, js, libsScripts);
 
 
 // Tasks
 export { images };
 export const open = name ? series(build, parallel(watchFiles, serverOpen)) : nullName;
-export const build_open = name ? series(clean, build, gitignore, sprites, images, fonts, parallel(watchFiles, serverOpen)) : nullName;
 export default name ? series(build, parallel(watchFiles, server)) : nullName;

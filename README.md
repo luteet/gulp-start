@@ -14,7 +14,7 @@ Runs the default Gulp build process. This usually includes compiling source file
 
 Starts the default Gulp process and opens the project in a new browser tab.
 
-### `gulp build_open`
+### `gulp build && gulp open`
 
 Runs a **full build from scratch**:
 - Optimizes all images
