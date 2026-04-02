@@ -19,15 +19,23 @@ import path from 'path';
 import chokidar from "chokidar";
 import * as cheerio from 'cheerio';
 import buffer from 'vinyl-buffer';
-import through from 'through2';  
+import through from 'through2';
+import concat from 'gulp-concat';
 import { cleanOrphans } from "./gulp/utilities/clean-orphans.js";
 import cleanFiles from "./gulp/utilities/clean-files.js";
+import { captureHash, versionAssets } from "./gulp/utilities/version-assets.js";
 import { globby } from "globby";
 
 const { add_watch, paths, js_config, css_config, autoprefixer_config, sprites_config, watcher } = config;
 
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
+
+const assetHashes = {
+	'style.min.css': '00000000',
+	'libs.min.js':   '00000000',
+	'main.js':       '00000000',
+};
 
 
 // Deleting dist
@@ -44,6 +52,7 @@ async function html() {
 	return src(paths.src.html)
 	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
 	.pipe(include())
+	.pipe(versionAssets(assetHashes))
 	.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
 	.pipe(dest(paths.build.html))
 	.pipe(bs.stream());
@@ -66,13 +75,12 @@ const plugins = [
 	cssnano(css_config)
 ];
 
-async function scss() {
-	const concat = (await import('gulp-concat')).default;
-
+function scss() {
 	return src(paths.src.scss)
 	.pipe(sass().on('error', sass.logError))
 	.pipe(postcss(plugins))
 	.pipe(concat("style.min.css"))
+	.pipe(captureHash(hash => assetHashes['style.min.css'] = hash))
 	.pipe(dest(paths.build.css))
 	.pipe(bs.stream());
 }
@@ -148,6 +156,7 @@ function processStyleFile(filePath, action) {
 function js() {
 	return src(paths.src.js)
 	.pipe(uglify(js_config))
+	.pipe(captureHash(hash => assetHashes['main.js'] = hash))
 	.pipe(dest(paths.build.js))
 	.pipe(bs.stream());
 }
@@ -158,6 +167,7 @@ async function libsScripts(cb) {
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
 	.pipe(uglify(js_config))
 	.pipe(concat("libs.min.js"))
+	.pipe(captureHash(hash => assetHashes['libs.min.js'] = hash))
 	.pipe(dest(paths.build.js))
 	.pipe(bs.stream()) : cb();
 }
@@ -390,8 +400,8 @@ function cleanOrphansSeries(cb) {
 export function watchFiles() {
 	watch(paths.watch.html, html);
 	watch(paths.src.html_components, series(htmlComponents, html));
-	watch(paths.watch.scss, scss);
-	watch(paths.watch.js, js);
+	watch(paths.watch.scss, series(scss, html));
+	watch(paths.watch.js, series(js, html));
 	watch(paths.watch.fonts, { events: "add" }, series(fonts, reload));
 	watch(paths.src.img, { events: ["add", "change"] }, series(images, reload));
 	watch(paths.watch.sprites, series(sprites, reload));
@@ -458,7 +468,10 @@ async function nullName(cb) {
 
 
 // Build
-export const build = parallel(cleanOrphansSeries, html, htmlComponents, scss, libsStyles, js, libsScripts);
+export const build = series(
+	parallel(cleanOrphansSeries, libsStyles, scss, js, libsScripts),
+	parallel(html, htmlComponents)
+);
 
 
 // Tasks

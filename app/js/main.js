@@ -1,5 +1,5 @@
 
-const 
+const
 	body = document.body,
 	html = document.documentElement,
 	menu = document.querySelectorAll(".header__burger, .header__nav, body"),
@@ -17,9 +17,9 @@ body.addEventListener("click", function (event) {
 
 
 	// Navigation menu in the header
-	
+
 	if ($(".header__burger")) {
-	
+
 		nav.forEach(nav => {
 			nav.classList.add("is-active-transition")
 		})
@@ -28,10 +28,11 @@ body.addEventListener("click", function (event) {
 			menu.forEach(element => element.classList.toggle("is-mobile-nav-active"))
 		}, 0)
 
+		if (mobileTimeline) clearTimeout(mobileTimeline);
 		mobileTimeline = setTimeout(() => {
 			nav.forEach(nav => nav.classList.remove("is-active-transition"))
 		}, 350)
-	
+
 	}
 
 })
@@ -41,14 +42,12 @@ body.addEventListener("click", function (event) {
 
 const imageAspectRatio = document.querySelectorAll(".image-aspect-ratio, figure img");
 imageAspectRatio.forEach(imageAspectRatio => {
-	const [ width, height ] = [imageAspectRatio.getAttribute("width"), imageAspectRatio.getAttribute("height")];
-	if(width && height) imageAspectRatio.style.setProperty("--aspect-ratio", `${width} / ${height}`);
+	const [width, height] = [imageAspectRatio.getAttribute("width"), imageAspectRatio.getAttribute("height")];
+	if (width && height) imageAspectRatio.style.setProperty("--aspect-ratio", `${width} / ${height}`);
 })
 
 
 // Resize
-
-//let windowSize = 0;
 
 function resize() {
 
