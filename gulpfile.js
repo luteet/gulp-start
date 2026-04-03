@@ -23,20 +23,12 @@ import through from 'through2';
 import concat from 'gulp-concat';
 import { cleanOrphans } from "./gulp/utilities/clean-orphans.js";
 import cleanFiles from "./gulp/utilities/clean-files.js";
-import { captureHash, versionAssets } from "./gulp/utilities/version-assets.js";
 import { globby } from "globby";
 
 const { add_watch, paths, js_config, css_config, autoprefixer_config, sprites_config, watcher } = config;
 
 const bs = browserSync.create();
 const sass = gulpSass(dartSass);
-
-const assetHashes = {
-	'style.min.css': '00000000',
-	'libs.min.js':   '00000000',
-	'main.js':       '00000000',
-};
-
 
 // Deleting dist
 export function clean() {
@@ -51,8 +43,7 @@ async function html() {
 
 	return src(paths.src.html)
 	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-	.pipe(include())
-	.pipe(versionAssets(assetHashes))
+	.pipe(include({ context: { version: Date.now().toString() } }))
 	.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
 	.pipe(dest(paths.build.html))
 	.pipe(bs.stream());
@@ -80,7 +71,6 @@ function scss() {
 	.pipe(sass().on('error', sass.logError))
 	.pipe(postcss(plugins))
 	.pipe(concat("style.min.css"))
-	.pipe(captureHash(hash => assetHashes['style.min.css'] = hash))
 	.pipe(dest(paths.build.css))
 	.pipe(bs.stream());
 }
@@ -156,7 +146,6 @@ function processStyleFile(filePath, action) {
 function js() {
 	return src(paths.src.js)
 	.pipe(uglify(js_config))
-	.pipe(captureHash(hash => assetHashes['main.js'] = hash))
 	.pipe(dest(paths.build.js))
 	.pipe(bs.stream());
 }
@@ -167,7 +156,6 @@ async function libsScripts(cb) {
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
 	.pipe(uglify(js_config))
 	.pipe(concat("libs.min.js"))
-	.pipe(captureHash(hash => assetHashes['libs.min.js'] = hash))
 	.pipe(dest(paths.build.js))
 	.pipe(bs.stream()) : cb();
 }
