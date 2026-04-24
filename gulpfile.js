@@ -39,23 +39,23 @@ export function clean() {
 // HTML
 async function html() {
 	const plumber = (await import('gulp-plumber')).default,
-	notify = (await import('gulp-notify')).default;
+		notify = (await import('gulp-notify')).default;
 
 	return src(paths.src.html)
-	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-	.pipe(include({ context: { version: Date.now().toString() } }))
-	.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
-	.pipe(dest(paths.build.html))
-	.pipe(bs.stream());
+		.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
+		.pipe(include({ context: { version: Date.now().toString() } }))
+		.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
+		.pipe(dest(paths.build.html))
+		.pipe(bs.stream());
 }
 
 async function htmlComponents() {
 	const plumber = (await import('gulp-plumber')).default,
-	notify = (await import('gulp-notify')).default;
+		notify = (await import('gulp-notify')).default;
 
 	return src(paths.src.html_components)
-	.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-	.pipe(include());
+		.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
+		.pipe(include());
 }
 
 
@@ -68,19 +68,19 @@ const plugins = [
 
 function scss() {
 	return src(paths.src.scss)
-	.pipe(sass().on('error', sass.logError))
-	.pipe(postcss(plugins))
-	.pipe(concat("style.min.css"))
-	.pipe(dest(paths.build.css))
-	.pipe(bs.stream());
+		.pipe(sass().on('error', sass.logError))
+		.pipe(postcss(plugins))
+		.pipe(concat("style.min.css"))
+		.pipe(dest(paths.build.css))
+		.pipe(bs.stream());
 }
 
 async function libsStyles() {
 	const concat = (await import('gulp-concat')).default;
 
 	return src(paths.src.libs.scss)
-	.pipe(concat("libs.scss"))
-	.pipe(dest(paths.src.scss_folder))
+		.pipe(concat("libs.scss"))
+		.pipe(dest(paths.src.scss_folder))
 }
 
 
@@ -145,19 +145,19 @@ function processStyleFile(filePath, action) {
 // JS
 function js() {
 	return src(paths.src.js)
-	.pipe(uglify(js_config))
-	.pipe(dest(paths.build.js))
-	.pipe(bs.stream());
+		.pipe(uglify(js_config))
+		.pipe(dest(paths.build.js))
+		.pipe(bs.stream());
 }
 
 async function libsScripts(cb) {
 	const concat = (await import('gulp-concat')).default;
 
 	return paths.src.libs.js.length ? src(paths.src.libs.js)
-	.pipe(uglify(js_config))
-	.pipe(concat("libs.min.js"))
-	.pipe(dest(paths.build.js))
-	.pipe(bs.stream()) : cb();
+		.pipe(uglify(js_config))
+		.pipe(concat("libs.min.js"))
+		.pipe(dest(paths.build.js))
+		.pipe(bs.stream()) : cb();
 }
 
 
@@ -165,7 +165,7 @@ async function libsScripts(cb) {
 async function addFiles() {
 	add_watch.map(params => {
 		return src(`app/${params.folder}/*.${params.extname}`, { encoding: false })
-		.pipe(dest(`dist/${params.folder}`))
+			.pipe(dest(`dist/${params.folder}`))
 	})
 }
 
@@ -193,15 +193,15 @@ const name = packageData.name;
 
 export function folder() {
 	return src([...paths.build.folder, `!./${name}.zip`])
-	.pipe(dest(`./${name}`));
+		.pipe(dest(`./${name}`));
 }
 
 
 // Building the project into a zip-archive
 export function zip() {
 	return src(paths.build.main)
-	.pipe(createZip(`${name}.zip`))
-	.pipe(dest('dist/'));
+		.pipe(createZip(`${name}.zip`))
+		.pipe(dest('dist/'));
 }
 
 
@@ -227,12 +227,12 @@ export async function fonts() {
 	const ttf2woff2 = (await import('gulp-ttf2woff2')).default;
 
 	return src(paths.src.fonts, { encoding: false, removeBOM: false })
-	.pipe(newer({
-		dest: paths.build.fonts,
-		ext: '.woff2'
-	}))
-	.pipe(ttf2woff2())
-	.pipe(dest(paths.build.fonts))
+		.pipe(newer({
+			dest: paths.build.fonts,
+			ext: '.woff2'
+		}))
+		.pipe(ttf2woff2())
+		.pipe(dest(paths.build.fonts))
 }
 
 
@@ -241,28 +241,28 @@ async function otherImages() {
 	const imagemin = (await import('gulp-imagemin')).default;
 
 	return src(paths.src.img, { encoding: false })
-	.pipe(newer(paths.build.img))
-	.pipe(imagemin())
+		.pipe(newer(paths.build.img))
+		.pipe(imagemin())
 
-	.pipe(dest(paths.build.img))
+		.pipe(dest(paths.build.img))
 }
 
 async function avifImages() {
 	const avif = (await import('gulp-avif')).default;
 
 	return src(paths.src.img_avif, { encoding: false })
-	.pipe(newer(paths.build.img))
-	.pipe(avif({ quality: 65 }))
+		.pipe(newer(paths.build.img))
+		.pipe(avif({ quality: 65 }))
 
-	.pipe(dest(paths.build.img))
+		.pipe(dest(paths.build.img))
 }
 
 async function webpImages() {
 	return src(paths.src.img, { encoding: false })
-	.pipe(newer(paths.build.img))
-	.pipe(webp())
+		.pipe(newer(paths.build.img))
+		.pipe(webp())
 
-	.pipe(dest(paths.build.img))
+		.pipe(dest(paths.build.img))
 }
 
 const images = series(avifImages, webpImages, otherImages);
@@ -298,39 +298,39 @@ export async function sprites() {
 	}
 
 	return src(paths.src.sprites)
-	.pipe(buffer())
-	.pipe(through.obj(function(file, _, callback) {
-		
-		if (!file.contents) {
-			console.error('Error: file does not contain data!');
-			return callback();
-		}
+		.pipe(buffer())
+		.pipe(through.obj(function (file, _, callback) {
 
-		const $ = cheerio.load(file.contents.toString(), { xmlMode: true });
+			if (!file.contents) {
+				console.error('Error: file does not contain data!');
+				return callback();
+			}
 
-		$('path').each((_, elem) => {
-			const el = $(elem);
-			if (el.attr('stroke')) {
+			const $ = cheerio.load(file.contents.toString(), { xmlMode: true });
+
+			$('path').each((_, elem) => {
+				const el = $(elem);
+				if (el.attr('stroke')) {
+					el.attr('stroke', 'currentColor');
+					el.attr('fill', 'none');
+				} else if (el.attr('fill')) {
+					el.attr('fill', 'currentColor');
+				}
+			});
+
+			$('line').each((_, elem) => {
+				const el = $(elem);
 				el.attr('stroke', 'currentColor');
 				el.attr('fill', 'none');
-			} else if (el.attr('fill')) {
-				el.attr('fill', 'currentColor');
-			}
-		});
+			});
 
-		$('line').each((_, elem) => {
-			const el = $(elem);
-			el.attr('stroke', 'currentColor');
-			el.attr('fill', 'none');
-		});
+			file.contents = Buffer.from($.xml());
+			this.push(file);
 
-		file.contents = Buffer.from($.xml());
-		this.push(file);
-
-		callback();
-	}))
-	.pipe(sprites(sprites_config))
-	.pipe(dest(paths.build.img));
+			callback();
+		}))
+		.pipe(sprites(sprites_config))
+		.pipe(dest(paths.build.img));
 }
 
 
@@ -370,7 +370,7 @@ function cleanOrphansSeries(cb) {
 		includeDerivedExt: ['woff2']
 	});
 
-	if(add_watch.length) {
+	if (add_watch.length) {
 		add_watch.map(params => {
 			cleanOrphans({
 				ext: [params.extname],
@@ -379,7 +379,7 @@ function cleanOrphansSeries(cb) {
 			});
 		})
 	}
-	
+
 	cb();
 }
 
@@ -458,6 +458,8 @@ async function nullName(cb) {
 // Build
 export const build = series(
 	parallel(cleanOrphansSeries, libsStyles, scss, js, libsScripts),
+	fonts,
+	images,
 	parallel(html, htmlComponents)
 );
 
