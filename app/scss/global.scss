@@ -16,7 +16,7 @@
 }
 
 html {
-	min-height: 100%; min-width: 320px;
+	min-width: 320px; min-height: 100vh; min-height: 100svh;
 
 	font-size: 16px;
 
@@ -31,13 +31,13 @@ body {
 	display: flex;
 	flex-direction: column;
 
-	min-width: 320px; min-height: 100%;
+	min-width: 320px; min-height: 100vh; min-height: 100svh;
 
 	font-family: var(--main-font);
 	font-weight: 400;
 	line-height: 150%;
 
-	&.is-mobile-menu-active {
+	&.is-mobile-nav-active {
 		overflow: hidden;
 	}
 }
