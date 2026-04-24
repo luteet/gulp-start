@@ -283,11 +283,11 @@ export async function sprites() {
 	const outputFile = path.join(paths.build.img, 'sprites.svg');
 
 	try {
-		// Получаем список SVG-файлов
+		// We retrieve a list of SVG files
 		const files = await globby(glob);
 
 		if (files.length === 0) {
-			// Нет SVG — удаляем sprites.svg, если он есть
+			// No SVG — remove sprites.svg if it exists
 			await del(outputFile);
 			console.log('No SVG files found. Deleted sprites.svg if it existed.');
 			return;
@@ -458,6 +458,7 @@ async function nullName(cb) {
 // Build
 export const build = series(
 	parallel(cleanOrphansSeries, libsStyles, scss, js, libsScripts),
+	sprites,
 	fonts,
 	images,
 	parallel(html, htmlComponents)
