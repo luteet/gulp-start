@@ -388,7 +388,7 @@ function cleanOrphansSeries(cb) {
 export function watchFiles() {
 	watch(paths.watch.html, html);
 	watch(paths.src.html_components, series(htmlComponents, html));
-	watch(paths.watch.scss, series(scss, html));
+	watch(paths.watch.scss, scss);
 	watch(paths.watch.js, series(js, html));
 	watch(paths.watch.fonts, { events: "add" }, series(fonts, reload));
 	watch(paths.src.img, { events: ["add", "change"] }, series(images, reload));
