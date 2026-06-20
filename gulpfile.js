@@ -24,6 +24,7 @@ import concat from 'gulp-concat';
 import { cleanOrphans } from "./gulp/utilities/clean-orphans.js";
 import cleanFiles from "./gulp/utilities/clean-files.js";
 import { globby } from "globby";
+import { finished } from 'node:stream/promises';
 
 const { add_watch, paths, js_config, css_config, autoprefixer_config, sprites_config, watcher } = config;
 
@@ -226,13 +227,15 @@ async function gitignore(cb) {
 export async function fonts() {
 	const ttf2woff2 = (await import('gulp-ttf2woff2')).default;
 
-	return src(paths.src.fonts, { encoding: false, removeBOM: false })
-		.pipe(newer({
-			dest: paths.build.fonts,
-			ext: '.woff2'
-		}))
-		.pipe(ttf2woff2())
-		.pipe(dest(paths.build.fonts))
+	await finished(
+		src(paths.src.fonts, { encoding: false, removeBOM: false })
+			.pipe(newer({
+				dest: paths.build.fonts,
+				ext: '.woff2'
+			}))
+			.pipe(ttf2woff2())
+			.pipe(dest(paths.build.fonts))
+	);
 }
 
 
@@ -240,32 +243,38 @@ export async function fonts() {
 async function otherImages() {
 	const imagemin = (await import('gulp-imagemin')).default;
 
-	return src(paths.src.img, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(imagemin())
+	await finished(
+		src(paths.src.img, { encoding: false })
+			.pipe(newer(paths.build.img))
+			.pipe(imagemin())
 
-		.pipe(dest(paths.build.img))
+			.pipe(dest(paths.build.img))
+	);
 }
 
 async function avifImages() {
 	const avif = (await import('gulp-avif')).default;
 
-	return src(paths.src.img_avif, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(avif({ quality: 65 }))
+	await finished(
+		src(paths.src.img_avif, { encoding: false })
+			.pipe(newer(paths.build.img))
+			.pipe(avif({ quality: 65 }))
 
-		.pipe(dest(paths.build.img))
+			.pipe(dest(paths.build.img))
+	);
 }
 
 async function webpImages() {
-	return src(paths.src.img, { encoding: false })
-		.pipe(newer(paths.build.img))
-		.pipe(webp())
+	await finished(
+		src(paths.src.img, { encoding: false })
+			.pipe(newer(paths.build.img))
+			.pipe(webp())
 
-		.pipe(dest(paths.build.img))
+			.pipe(dest(paths.build.img))
+	);
 }
 
-const images = series(avifImages, webpImages, otherImages);
+const images = parallel(avifImages, webpImages, otherImages);
 
 
 // Just reload

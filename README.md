@@ -14,19 +14,22 @@ Runs the default Gulp build process. This usually includes compiling source file
 
 Starts the default Gulp process and opens the project in a new browser tab.
 
-### `gulp build && gulp open`
+### `gulp build`
 
-Runs a **full build from scratch**:
+Runs:
 - Optimizes all images
 - Converts fonts
 - Processes source files
-- Opens the project in a new browser tab
 
 Use this when you want a clean build with all assets fully processed.
 
 ### `gulp clean`
 
 Removes the `dist/` folder to ensure a clean build environment.
+
+### `gulp clean && gulp build`
+
+Runs a **full build from scratch**.
 
 ### `gulp folder`
 
