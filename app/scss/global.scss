@@ -1,8 +1,8 @@
 @use 'sass:math';
 
 :root {
-	--title-font: 'Arial', sans-serif;
-	--main-font: 'Arial', sans-serif;
+	--title-font: 'Arial', system-ui;
+	--main-font: 'Arial', system-ui;
 	
 	--accent: #5ec63f;
 	--accent-hover: #71db50;
