@@ -39,7 +39,8 @@
     "postcss-sort-media-queries": "^6.0.0",
     "sass": "^1.97.3",
     "through2": "^4.0.2",
-    "vinyl-buffer": "^1.0.1"
+    "vinyl-buffer": "^1.0.1",
+    "sharp": "^0.35.3"
   },
   "dependencies": {
     "modern-normalize": "^3.0.1"
