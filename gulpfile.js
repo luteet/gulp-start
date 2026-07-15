@@ -10,10 +10,10 @@ import browserSync from 'browser-sync';
 import createZip from "gulp-zip";
 import cssnano from "cssnano";
 import newer from "gulp-newer";
-import webp from "gulp-webp";
 import include from "gulp-file-include";
 import beautify from "gulp-beautify";
 import fs from "fs";
+import sharp from 'sharp';
 import config from "./gulp/config.js";
 import path from 'path';
 import chokidar from "chokidar";
@@ -239,42 +239,85 @@ export async function fonts() {
 }
 
 
-// Image Optimization
-async function otherImages() {
-	const imagemin = (await import('gulp-imagemin')).default;
-
+// Image Optimization (via sharp)
+async function optimizeImages() {
 	await finished(
 		src(paths.src.img, { encoding: false })
 			.pipe(newer(paths.build.img))
-			.pipe(imagemin())
+			.pipe(buffer())
+			.pipe(through.obj(function (file, _, callback) {
+				if (file.isNull()) return callback(null, file);
 
+				const ext = path.extname(file.path).toLowerCase();
+
+				if (ext === '.jpg' || ext === '.jpeg') {
+					sharp(file.contents)
+						.jpeg({ quality: 85, mozjpeg: true })
+						.toBuffer()
+						.then(buf => { file.contents = buf; callback(null, file); })
+						.catch(callback);
+				} else if (ext === '.png') {
+					sharp(file.contents)
+						.png({ quality: 85, palette: true })
+						.toBuffer()
+						.then(buf => { file.contents = buf; callback(null, file); })
+						.catch(callback);
+				} else {
+					// GIF, SVG, WebP, AVIF — pass through as-is
+					callback(null, file);
+				}
+			}))
 			.pipe(dest(paths.build.img))
 	);
 }
 
+// Convert to AVIF via sharp
 async function avifImages() {
-	const avif = (await import('gulp-avif')).default;
-
 	await finished(
 		src(paths.src.img_avif, { encoding: false })
-			.pipe(newer(paths.build.img))
-			.pipe(avif({ quality: 65 }))
+			.pipe(newer({ dest: paths.build.img, ext: '.avif' }))
+			.pipe(buffer())
+			.pipe(through.obj(function (file, _, callback) {
+				if (file.isNull()) return callback(null, file);
 
+				sharp(file.contents)
+					.avif({ quality: 65 })
+					.toBuffer()
+					.then(buf => {
+						file.contents = buf;
+						file.path = file.path.replace(/\.\w+$/, '.avif');
+						callback(null, file);
+					})
+					.catch(callback);
+			}))
 			.pipe(dest(paths.build.img))
 	);
 }
 
+// Convert to WebP via sharp
 async function webpImages() {
 	await finished(
-		src(paths.src.img, { encoding: false })
-			.pipe(newer(paths.build.img))
-			.pipe(webp())
+		src(paths.src.img_webp, { encoding: false })
+			.pipe(newer({ dest: paths.build.img, ext: '.webp' }))
+			.pipe(buffer())
+			.pipe(through.obj(function (file, _, callback) {
+				if (file.isNull()) return callback(null, file);
 
+				sharp(file.contents)
+					.webp({ quality: 80 })
+					.toBuffer()
+					.then(buf => {
+						file.contents = buf;
+						file.path = file.path.replace(/\.\w+$/, '.webp');
+						callback(null, file);
+					})
+					.catch(callback);
+			}))
 			.pipe(dest(paths.build.img))
 	);
 }
 
-const images = parallel(avifImages, webpImages, otherImages);
+const images = parallel(avifImages, webpImages, optimizeImages);
 
 
 // Just reload
