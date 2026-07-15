@@ -14,6 +14,7 @@ import include from "gulp-file-include";
 import beautify from "gulp-beautify";
 import fs from "fs";
 import sharp from 'sharp';
+import wawoff2 from 'wawoff2';
 import config from "./gulp/config.js";
 import path from 'path';
 import chokidar from "chokidar";
@@ -223,17 +224,23 @@ async function gitignore(cb) {
 }
 
 
-// Font conversion (TTF -> WOFF2)
+// Font conversion (TTF -> WOFF2 via wawoff2, pure JS, no node-gyp)
 export async function fonts() {
-	const ttf2woff2 = (await import('gulp-ttf2woff2')).default;
-
 	await finished(
 		src(paths.src.fonts, { encoding: false, removeBOM: false })
-			.pipe(newer({
-				dest: paths.build.fonts,
-				ext: '.woff2'
+			.pipe(newer({ dest: paths.build.fonts, ext: '.woff2' }))
+			.pipe(buffer())
+			.pipe(through.obj(function (file, _, callback) {
+				if (file.isNull()) return callback(null, file);
+
+				wawoff2.compress(file.contents)
+					.then(buf => {
+						file.contents = Buffer.from(buf);
+						file.path = file.path.replace(/\.\w+$/, '.woff2');
+						callback(null, file);
+					})
+					.catch(callback);
 			}))
-			.pipe(ttf2woff2())
 			.pipe(dest(paths.build.fonts))
 	);
 }
