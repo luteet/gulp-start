@@ -39,25 +39,36 @@ export function clean() {
 
 
 // HTML
-async function html() {
-	const plumber = (await import('gulp-plumber')).default,
-		notify = (await import('gulp-notify')).default;
+function onError(err) {
+	console.error(`\x1b[31mError: ${err.message}\x1b[0m`);
+	this.emit('end');
+}
 
-	return src(paths.src.html)
-		.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-		.pipe(include({ context: { version: Date.now().toString() } }))
-		.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
-		.pipe(dest(paths.build.html))
-		.pipe(bs.stream());
+async function html() {
+	const plumber = (await import('gulp-plumber')).default;
+
+	return new Promise(resolve => {
+		src(paths.src.html)
+			.pipe(plumber({ errorHandler: onError }))
+			.pipe(include({ context: { version: Date.now().toString() } }))
+			.pipe(beautify.html({ indent_size: 1, indent_char: "\t" }))
+			.pipe(dest(paths.build.html))
+			.pipe(bs.stream())
+			.on('error', () => resolve())
+			.on('finish', () => resolve());
+	});
 }
 
 async function htmlComponents() {
-	const plumber = (await import('gulp-plumber')).default,
-		notify = (await import('gulp-notify')).default;
+	const plumber = (await import('gulp-plumber')).default;
 
-	return src(paths.src.html_components)
-		.pipe(plumber({ errorHandler: notify.onError("Error: <%= error.message %>") }))
-		.pipe(include());
+	return new Promise(resolve => {
+		src(paths.src.html_components)
+			.pipe(plumber({ errorHandler: onError }))
+			.pipe(include())
+			.on('error', () => resolve())
+			.on('finish', () => resolve());
+	});
 }
 
 
