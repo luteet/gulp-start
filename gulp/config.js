@@ -29,7 +29,7 @@ export default {
 			scss_folder: 'app/scss/',
 			js: 'app/js/*.js',
 			libs,
-			img_avif: ['app/img/**/*.*', '!app/img/**/*.webp', '!app/img/**/*.svg'],
+			img_avif: ['app/img/**/*.*', '!app/img/**/*.webp', '!app/img/**/*.svg', '!app/img/**/*.gif'],
 			img: ["app/img/**/*.*", '!app/img/sprites/*.svg'],
 			img_folder: "app/img",
 			sprites: "app/img/sprites/*.svg",
