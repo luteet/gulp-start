@@ -5,7 +5,7 @@ import postcss from "gulp-postcss";
 import postcssSortMediaQueries from "postcss-sort-media-queries";
 import autoprefixer from "autoprefixer";
 import uglify from "gulp-uglify";
-import del from "del";
+import { deleteAsync as del } from "del";
 import browserSync from 'browser-sync';
 import createZip from "gulp-zip";
 import cssnano from "cssnano";
